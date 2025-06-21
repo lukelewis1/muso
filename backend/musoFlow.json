@@ -1,0 +1,809 @@
+[
+    {
+        "id": "e0fb78fc2f5709e5",
+        "type": "tab",
+        "label": "MusoFlow",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "58b86f3404fe9972",
+        "type": "uibuilder",
+        "z": "e0fb78fc2f5709e5",
+        "name": "formpage",
+        "topic": "",
+        "url": "submitformpage",
+        "okToGo": true,
+        "fwdInMessages": false,
+        "allowScripts": false,
+        "allowStyles": false,
+        "copyIndex": true,
+        "templateFolder": "iife-blank-client",
+        "extTemplate": "",
+        "showfolder": false,
+        "reload": false,
+        "sourceFolder": "src",
+        "deployedVersion": "7.2.0",
+        "showMsgUib": false,
+        "title": "",
+        "descr": "",
+        "editurl": "vscode://vscode-remote/ssh-remote+node-red-fly.fly.dev/data/uibuilder/submitformpage/?windowId=_blank",
+        "x": 280,
+        "y": 620,
+        "wires": [
+            [
+                "4c363319e03f339e"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "6ff690a880e65387",
+        "type": "Firestore out",
+        "z": "e0fb78fc2f5709e5",
+        "name": "",
+        "collection": "reviews",
+        "document": "",
+        "operation": "add",
+        "admin": "025e4878785c5635",
+        "eject": false,
+        "x": 1710,
+        "y": 560,
+        "wires": [
+            [
+                "49d61132f981d6cc"
+            ]
+        ]
+    },
+    {
+        "id": "ac09c408139c105e",
+        "type": "uibuilder",
+        "z": "e0fb78fc2f5709e5",
+        "name": "home",
+        "topic": "",
+        "url": "home",
+        "okToGo": true,
+        "fwdInMessages": false,
+        "allowScripts": false,
+        "allowStyles": false,
+        "copyIndex": true,
+        "templateFolder": "esm-blank-client",
+        "extTemplate": "",
+        "showfolder": false,
+        "reload": true,
+        "sourceFolder": "src",
+        "deployedVersion": "7.2.0",
+        "showMsgUib": false,
+        "title": "",
+        "descr": "",
+        "editurl": "vscode://vscode-remote/ssh-remote+node-red-fly.fly.dev/data/uibuilder/home/?windowId=_blank",
+        "x": 240,
+        "y": 320,
+        "wires": [
+            [
+                "31deb1fe8edbb402"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "71112136855567a2",
+        "type": "http request",
+        "z": "e0fb78fc2f5709e5",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 810,
+        "y": 200,
+        "wires": [
+            [
+                "ed91ac59d171ac9d"
+            ]
+        ]
+    },
+    {
+        "id": "ed91ac59d171ac9d",
+        "type": "uib-sender",
+        "z": "e0fb78fc2f5709e5",
+        "url": "home",
+        "uibId": "ac09c408139c105e",
+        "name": "Search",
+        "topic": "search",
+        "passthrough": true,
+        "return": false,
+        "outputs": 1,
+        "x": 960,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "0501cd12c7fdfa72",
+        "type": "function",
+        "z": "e0fb78fc2f5709e5",
+        "name": "Review Payload",
+        "func": "var data = msg.payload;\n\nmsg.payload = {\n    album_name: data.album_name,\n    artist_name: data.artist_name,\n    user_id: data.user_id,\n    rating: data.rating,\n    review_text: data.review_text,\n    timestamp: new Date().toLocaleString('en-AU', { timeZone: 'Australia/Adelaide' })\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 560,
+        "wires": [
+            [
+                "30403081bd6d66d7"
+            ]
+        ]
+    },
+    {
+        "id": "73a20b4823bb9a6f",
+        "type": "http request",
+        "z": "e0fb78fc2f5709e5",
+        "name": "Get API's Analysis",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://language.googleapis.com/v1/documents:analyzeSentiment?key=",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1330,
+        "y": 560,
+        "wires": [
+            [
+                "1f8b0ae8c16d72cb"
+            ]
+        ]
+    },
+    {
+        "id": "d092dce41a055895",
+        "type": "function",
+        "z": "e0fb78fc2f5709e5",
+        "name": "Conversion Payload",
+        "func": "msg.headers = {\n    \"Content-Type\": \"application/json\"\n};\n\nmsg.payload = JSON.stringify({\n    document: {\n        type: \"PLAIN_TEXT\",\n        content: msg.payload\n    },\n    encodingType: \"UTF8\"\n});\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1120,
+        "y": 560,
+        "wires": [
+            [
+                "73a20b4823bb9a6f"
+            ]
+        ]
+    },
+    {
+        "id": "1f8b0ae8c16d72cb",
+        "type": "function",
+        "z": "e0fb78fc2f5709e5",
+        "name": "Output Formatter",
+        "func": "\nlet sentiment = msg.payload.documentSentiment;\n\nlet original = flow.get(\"originalReview\") || {};\n\nmsg.payload = {\n    ...original,\n    score: sentiment.score,\n    magnitude: sentiment.magnitude\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1530,
+        "y": 560,
+        "wires": [
+            [
+                "6ff690a880e65387"
+            ]
+        ]
+    },
+    {
+        "id": "30403081bd6d66d7",
+        "type": "function",
+        "z": "e0fb78fc2f5709e5",
+        "name": "Extract and Store Review",
+        "func": "// Save the full review for later\nflow.set(\"originalReview\", msg.payload);\n\n// Extract just the review text for sentiment analysis\nmsg.payload = msg.payload.review_text;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 560,
+        "wires": [
+            [
+                "d092dce41a055895"
+            ]
+        ]
+    },
+    {
+        "id": "31deb1fe8edbb402",
+        "type": "switch",
+        "z": "e0fb78fc2f5709e5",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "search",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "loadIndividualAlbum",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "newpage",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "pageload",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "getrecentreviews",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 5,
+        "x": 430,
+        "y": 320,
+        "wires": [
+            [
+                "ef3be8939e8f785c"
+            ],
+            [
+                "04c1b104f0eca077"
+            ],
+            [
+                "33b1ce6252771155"
+            ],
+            [
+                "56fb2753bc51803a"
+            ],
+            [
+                "95099df5d4a57aa5"
+            ]
+        ]
+    },
+    {
+        "id": "ef3be8939e8f785c",
+        "type": "function",
+        "z": "e0fb78fc2f5709e5",
+        "name": "set url",
+        "func": "const api_key = \"";\nconst searchquery = msg.payload;\n\nconst auth_url = `http://ws.audioscrobbler.com/2.0/?method=album.search&album=${searchquery}&api_key=${api_key}&format=json&limit=15`;\nmsg.url = auth_url;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 200,
+        "wires": [
+            [
+                "71112136855567a2"
+            ]
+        ]
+    },
+    {
+        "id": "04c1b104f0eca077",
+        "type": "function",
+        "z": "e0fb78fc2f5709e5",
+        "name": "set url",
+        "func": "const api_key = \"";\nconst artist = msg.payload.artist;\nconst albumname = msg.payload.albumname;\nconst auth_url = `http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${api_key}&artist=${artist}&album=${albumname}&format=json`;\nmsg.url = auth_url;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 240,
+        "wires": [
+            [
+                "83bc11e9865eb1a9"
+            ]
+        ]
+    },
+    {
+        "id": "83bc11e9865eb1a9",
+        "type": "http request",
+        "z": "e0fb78fc2f5709e5",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 810,
+        "y": 240,
+        "wires": [
+            [
+                "816f50cdcf1927ae"
+            ]
+        ]
+    },
+    {
+        "id": "816f50cdcf1927ae",
+        "type": "uib-sender",
+        "z": "e0fb78fc2f5709e5",
+        "url": "home",
+        "uibId": "ac09c408139c105e",
+        "name": "Load Album Info",
+        "topic": "loadIndividualAlbum",
+        "passthrough": false,
+        "return": false,
+        "outputs": 0,
+        "x": 980,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "33b1ce6252771155",
+        "type": "function",
+        "z": "e0fb78fc2f5709e5",
+        "name": "Save Song Parameters",
+        "func": "flow.set(\"songFormParameters\", msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 730,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fa01f91fd324792f",
+        "type": "function",
+        "z": "e0fb78fc2f5709e5",
+        "name": "load song parameters",
+        "func": "msg.payload = flow.get(\"songFormParameters\");\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 700,
+        "y": 620,
+        "wires": [
+            [
+                "561a0a6b6e7b8e2f"
+            ]
+        ]
+    },
+    {
+        "id": "4c363319e03f339e",
+        "type": "switch",
+        "z": "e0fb78fc2f5709e5",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "submit_form",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "getData",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "getReviews",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 490,
+        "y": 620,
+        "wires": [
+            [
+                "0501cd12c7fdfa72"
+            ],
+            [
+                "fa01f91fd324792f"
+            ],
+            [
+                "75ed48a3076d0b0c"
+            ]
+        ]
+    },
+    {
+        "id": "31bfad8f5e7bbc89",
+        "type": "uib-sender",
+        "z": "e0fb78fc2f5709e5",
+        "url": "submitformpage",
+        "uibId": "58b86f3404fe9972",
+        "name": "load album",
+        "topic": "loadform",
+        "passthrough": true,
+        "return": false,
+        "outputs": 1,
+        "x": 1170,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "561a0a6b6e7b8e2f",
+        "type": "function",
+        "z": "e0fb78fc2f5709e5",
+        "name": "set url",
+        "func": "const api_key = \"";\nconst artist = msg.payload.artistName;\nconst albumname = msg.payload.albumName;\nconst auth_url = `http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${api_key}&artist=${artist}&album=${albumname}&format=json`;\nmsg.url = auth_url;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 620,
+        "wires": [
+            [
+                "3d9c3303ef09db79"
+            ]
+        ]
+    },
+    {
+        "id": "3d9c3303ef09db79",
+        "type": "http request",
+        "z": "e0fb78fc2f5709e5",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1010,
+        "y": 620,
+        "wires": [
+            [
+                "31bfad8f5e7bbc89"
+            ]
+        ]
+    },
+    {
+        "id": "a18fb19ae51cc11d",
+        "type": "Firestore in",
+        "z": "e0fb78fc2f5709e5",
+        "name": "",
+        "collection": "reviews",
+        "group": false,
+        "document": "",
+        "realtime": false,
+        "query": [],
+        "admin": "025e4878785c5635",
+        "snapHandler": "",
+        "eject": false,
+        "x": 840,
+        "y": 680,
+        "wires": [
+            [
+                "9f6b4b00a6e95de5"
+            ]
+        ]
+    },
+    {
+        "id": "9f6b4b00a6e95de5",
+        "type": "uib-sender",
+        "z": "e0fb78fc2f5709e5",
+        "url": "submitformpage",
+        "uibId": "58b86f3404fe9972",
+        "name": "load Reviews",
+        "topic": "loadReviews",
+        "passthrough": false,
+        "return": false,
+        "outputs": 0,
+        "x": 990,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "75ed48a3076d0b0c",
+        "type": "function",
+        "z": "e0fb78fc2f5709e5",
+        "name": "dynamic query",
+        "func": "let query = [];\nif (msg.payload.album_name !== undefined) {\n    query.push({ where: [\"album_name\", \"==\", msg.payload.album_name] });\n}\nif (msg.payload.artist_name !== undefined) {\n    query.push({ where: [\"artist_name\", \"==\", msg.payload.artist_name] });\n}\nmsg.firestore = { \n    query: query\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 680,
+        "wires": [
+            [
+                "a18fb19ae51cc11d"
+            ]
+        ]
+    },
+    {
+        "id": "df2a40ad48318721",
+        "type": "comment",
+        "z": "e0fb78fc2f5709e5",
+        "name": "search albums",
+        "info": "",
+        "x": 1120,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "ce17b4bca80e5e40",
+        "type": "comment",
+        "z": "e0fb78fc2f5709e5",
+        "name": "display album information",
+        "info": "",
+        "x": 1190,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "0bf87e34f4910e13",
+        "type": "comment",
+        "z": "e0fb78fc2f5709e5",
+        "name": "bring album information to form submission page",
+        "info": "",
+        "x": 1040,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "9da97f6b1b5ceb4a",
+        "type": "comment",
+        "z": "e0fb78fc2f5709e5",
+        "name": "get all reviews with matching artist and album name",
+        "info": "",
+        "x": 1270,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "dfcbb44790b42e39",
+        "type": "comment",
+        "z": "e0fb78fc2f5709e5",
+        "name": "display album information",
+        "info": "",
+        "x": 1370,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "8787e116dea4ca05",
+        "type": "comment",
+        "z": "e0fb78fc2f5709e5",
+        "name": "submit review form + sentiment analysis",
+        "info": "",
+        "x": 2220,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "c08a286154cc042d",
+        "type": "comment",
+        "z": "e0fb78fc2f5709e5",
+        "name": "main page album information",
+        "info": "",
+        "x": 1160,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "fd5384879dbf74d3",
+        "type": "http request",
+        "z": "e0fb78fc2f5709e5",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 810,
+        "y": 320,
+        "wires": [
+            [
+                "d37db259cc806150"
+            ]
+        ]
+    },
+    {
+        "id": "d37db259cc806150",
+        "type": "uib-sender",
+        "z": "e0fb78fc2f5709e5",
+        "url": "home",
+        "uibId": "ac09c408139c105e",
+        "name": "Search",
+        "topic": "loadhome",
+        "passthrough": true,
+        "return": false,
+        "outputs": 1,
+        "x": 960,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "56fb2753bc51803a",
+        "type": "function",
+        "z": "e0fb78fc2f5709e5",
+        "name": "set url",
+        "func": "const api_key = \"";\nconst searchquery = msg.payload;\n\nconst auth_url = `http://ws.audioscrobbler.com/2.0/?method=tag.gettopalbums&tag=${searchquery}&api_key=${api_key}&format=json&limit=5`\nmsg.url = auth_url;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 320,
+        "wires": [
+            [
+                "fd5384879dbf74d3"
+            ]
+        ]
+    },
+    {
+        "id": "95099df5d4a57aa5",
+        "type": "Firestore in",
+        "z": "e0fb78fc2f5709e5",
+        "name": "",
+        "collection": "reviews",
+        "group": false,
+        "document": "",
+        "realtime": false,
+        "query": [
+            {
+                "orderBy": {
+                    "field": "timestamp",
+                    "direction": "desc"
+                }
+            },
+            {
+                "limit": 10
+            }
+        ],
+        "admin": "025e4878785c5635",
+        "snapHandler": "",
+        "eject": false,
+        "x": 680,
+        "y": 360,
+        "wires": [
+            [
+                "3557260bc6f69368",
+                "2d6db30ca45fac57"
+            ]
+        ]
+    },
+    {
+        "id": "3557260bc6f69368",
+        "type": "uib-sender",
+        "z": "e0fb78fc2f5709e5",
+        "url": "home",
+        "uibId": "ac09c408139c105e",
+        "name": "DisplayReviews",
+        "topic": "recentreviews",
+        "passthrough": true,
+        "return": false,
+        "outputs": 1,
+        "x": 840,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2d6db30ca45fac57",
+        "type": "debug",
+        "z": "e0fb78fc2f5709e5",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 840,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "49d61132f981d6cc",
+        "type": "function",
+        "z": "e0fb78fc2f5709e5",
+        "name": "Prepare getReviews payload",
+        "func": "// Function node: \"Prepare getReviews payload\"\nlet original = flow.get(\"originalReview\") || {};\nmsg.payload = {\n    album_name: original.album_name,\n    artist_name: original.artist_name\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1920,
+        "y": 560,
+        "wires": [
+            [
+                "75ed48a3076d0b0c"
+            ]
+        ]
+    },
+    {
+        "id": "a2bd7311757054a2",
+        "type": "comment",
+        "z": "e0fb78fc2f5709e5",
+        "name": "display recent user reviews on homepage",
+        "info": "",
+        "x": 1100,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "7e744d55394bfefa",
+        "type": "comment",
+        "z": "e0fb78fc2f5709e5",
+        "name": "FANS: lewi0454 bora0021 bake0470 egli0022 fidg0017 dinn0036",
+        "info": "",
+        "x": 390,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "025e4878785c5635",
+        "type": "firebase admin",
+        "name": "muso-admin"
+    }
+]
